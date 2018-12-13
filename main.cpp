@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iterator>
 #include <cstdlib>
+#include <iterator>
 #include "Graph.h"
 #include "WeightedEdge.h"
 using namespace std;
@@ -64,7 +65,7 @@ int main(int argc, char* argv[]) {
         g.targetY = stoi(cords[3])-1;
         g.dfs(stoi(cords[0])-1, stoi(cords[1])-1, 0);
         outputFile<<g.maxLadder<<endl;
-        g.clear();
+        //g.clear();
     }
 
     return 0;
