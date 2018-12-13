@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <fstream>
+
 using namespace std;
 
 Graph::Graph(int N, int M) {
@@ -13,78 +15,78 @@ Graph::Graph(int N, int M) {
     this->M = M;
     totVisited = 0;
     maxLadder = 0;
-    boolVertices = new Vertex*[N];
-    for(int i = 0; i < N; ++i)
-        boolVertices[i] = new Vertex[M];
-
+    adjSpan = new list<SpanVertex>[N*M];
     vertices = new int*[N];
-    for(int i = 0; i < N; ++i)
+    boolDfs = new bool*[N];
+    boolSpan = new bool*[N];
+    for(int i = 0; i < N; ++i) {
         vertices[i] = new int[M];
+        boolDfs[i] = new bool[M];
+        boolSpan[i] = new bool[M];
+    }
+
+    for (int i=0; i<N; i++) {
+        for (int j=0; j<M; j++) {
+            boolDfs[i][j] = false;
+            boolSpan[i][j] = false;
+        }
+    }
 }
 
 void Graph::createSpanningTree() {
-    priority_queue<weightedEdge, vector<weightedEdge>, compareEdges> priorityEdges;
-    priorityEdges.push(allEdges.top());
-    allEdges.pop();
+    addEdges(0, 0);
     while(totVisited!=N*M){
-        int x1 = priorityEdges.top().first.first.first;
-        int y1 = priorityEdges.top().first.first.second;
-        int x2 = priorityEdges.top().first.second.first;
-        int y2 = priorityEdges.top().first.second.second;
-        if(!boolVertices[x1][y1].inSpan && !boolVertices[x2][y2].inSpan){
-            //add the edge to spanning tree and pop it from the priorityEdges
-            if(x1-x2 == 0) {
-                if (y1 > y2) {
-                    boolVertices[x1][y1].neighbors[1] = true;
-                    boolVertices[x2][y2].neighbors[3] = true;
-                } else{
-                    boolVertices[x1][y1].neighbors[3] = true;
-                    boolVertices[x2][y2].neighbors[1] = true;
-                }
-            }else{
-               if (x1 > x2){
-                   boolVertices[x1][y1].neighbors[2] = true;
-                   boolVertices[x2][y2].neighbors[0] = true;
-               } else{
-                   boolVertices[x1][y1].neighbors[0] = true;
-                   boolVertices[x2][y2].neighbors[2] = true;
-               }
-            }
-            totVisited+=2;
+        WeightedEdge currentEdge = priorityEdges.top();
+        if(!(boolSpan[currentEdge.x1][currentEdge.y1] && boolSpan[currentEdge.x2][currentEdge.y2])) {
+            boolSpan[currentEdge.x1][currentEdge.y1] = true;
+            boolSpan[currentEdge.x2][currentEdge.y2] = true;
+            adjSpan[currentEdge.x1 * M + currentEdge.y1].push_back(SpanVertex(currentEdge.x2, currentEdge.y2));
+            adjSpan[currentEdge.x2 * M + currentEdge.y2].push_back(SpanVertex(currentEdge.x1, currentEdge.y1));
             priorityEdges.pop();
+            addEdges(currentEdge.x2, currentEdge.y2);
         }else{
             priorityEdges.pop();
         }
-        priorityEdges.push(allEdges.top());
-        allEdges.pop();
     }
 }
 
-void Graph::dfs(int x, int y) {
-    if(x==targetX && y == targetY)
+void Graph::addEdges(int x, int y) {
+    totVisited++;
+    if(y+1<M && !boolSpan[x][y+1]) {
+        priorityEdges.push(WeightedEdge(x, y, x, y + 1, abs(vertices[x][y] - vertices[x][y + 1])));
+    }
+    if(x+1<N && !boolSpan[x+1][y]) {
+        priorityEdges.push(WeightedEdge(x, y, x + 1, y, abs(vertices[x][y] - vertices[x + 1][y])));
+    }
+    if(y-1>=0 && !boolSpan[x][y-1]) {
+        priorityEdges.push(WeightedEdge(x, y, x, y - 1, abs(vertices[x][y] - vertices[x][y - 1])));
+    }
+    if(x-1>=0 && !boolSpan[x-1][y]) {
+        priorityEdges.push(WeightedEdge(x, y, x - 1, y, abs(vertices[x][y] - vertices[x - 1][y])));
+    }
+}
+
+
+void Graph::dfs(int x, int y, int maxLad) {
+    if(x==targetX && y==targetY) {
+        maxLadder = maxLad;
         return;
-    if(boolVertices[x][y].neighbors[0]){
-        if(abs(vertices[x][y]-vertices[x+1][y]) > maxLadder)
-            maxLadder = abs(vertices[x][y]-vertices[x+1][y]);
-        dfs(x + 1, y);
     }
-    if(boolVertices[x][y].neighbors[1]) {
-        if(abs(vertices[x][y]-vertices[x][y+1]) > maxLadder)
-            maxLadder = abs(vertices[x][y]-vertices[x][y+1]);
-        dfs(x, y + 1);
-    }
-    if(boolVertices[x][y].neighbors[2]) {
-        if(abs(vertices[x][y]-vertices[x-1][y]) > maxLadder)
-            maxLadder = abs(vertices[x][y]-vertices[x-1][y]);
-        dfs(x - 1, y);
-    }
-    if(boolVertices[x][y].neighbors[3]) {
-        if(abs(vertices[x][y]-vertices[x][y-1]) > maxLadder)
-            maxLadder = abs(vertices[x][y]-vertices[x][y-1]);
-        dfs(x, y - 1);
+    if(boolDfs[x][y])
+        return;
+
+    boolDfs[x][y] = true;
+    list<SpanVertex>::iterator itr;
+    for(itr = adjSpan[x*M + y].begin(); itr != adjSpan[x*M + y].end(); ++itr){
+        dfs(itr->x, itr->y, max(maxLad, abs(vertices[x][y] - vertices[itr->x][itr->y])));
     }
 }
 
-void Graph::printResult() {
-
+void Graph::clear() {
+    totVisited = 0;
+    for (int i=0; i<N; i++) {
+        for (int j=0; j<M; j++) {
+            boolDfs[i][j] = false;
+        }
+    }
 }

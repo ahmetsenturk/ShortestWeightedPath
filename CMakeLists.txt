@@ -5,5 +5,5 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 
-set(SOURCE_FILES main.cpp Graph.cpp Graph.h Vertex.cpp Vertex.h)
+set(SOURCE_FILES main.cpp Graph.cpp Graph.h WeightedEdge.h SpanVertex.h)
 add_executable(project4 ${SOURCE_FILES})

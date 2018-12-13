@@ -8,7 +8,7 @@
 #include <iterator>
 #include <cstdlib>
 #include "Graph.h"
-#include "Vertex.h"
+#include "WeightedEdge.h"
 using namespace std;
 
 template <class Container>
@@ -43,17 +43,29 @@ int main(int argc, char* argv[]) {
         split1(line, numbers);
         for (int j=0; j<M; j++) {
             g.vertices[i][j] = stoi(numbers[j]);
-            if(j-1>=0){
-                g.allEdges.push(make_pair(make_pair(make_pair(i,j), make_pair(i,j-1)),
-                                       abs(g.vertices[i][j] - g.vertices[i][j-1])));
-            }
-            if(i-1>=0){
-                g.allEdges.push(make_pair(make_pair(make_pair(i,j), make_pair(i-1,j)),
-                                       abs(g.vertices[i][j] - g.vertices[i-1][j])));
-            }
         }
     }
-
+    ios_base::sync_with_stdio(false);
+    ofstream outputFile;
+    outputFile.open (argv[2]);
     g.createSpanningTree();
+
+    vector<string> input2;
+    getline(infile, line);
+    split1(line, input2);
+    int K = stoi(input2[0]);
+
+    for(int i=0; i<K; i++){
+        string line;
+        getline(infile, line);
+        vector<string> cords;
+        split1(line, cords);
+        g.targetX = stoi(cords[2])-1;
+        g.targetY = stoi(cords[3])-1;
+        g.dfs(stoi(cords[0])-1, stoi(cords[1])-1, 0);
+        outputFile<<g.maxLadder<<endl;
+        g.clear();
+    }
+
     return 0;
 }
