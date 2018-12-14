@@ -9,7 +9,6 @@
 #include <queue>
 #include <cstdlib>
 #include "WeightedEdge.h"
-#include "SpanVertex.h"
 using namespace std;
 
 struct compareEdges{
@@ -17,24 +16,30 @@ struct compareEdges{
         return e1.weight > e2.weight;
     }
 };
+typedef pair<int, int> cords;
+
 class Graph {
     int N;
     int M;
 public:
     int maxLadder;
-    int targetX;
-    int targetY;
+    int currentTargetX;
+    int currentTargetY;
+    int currentSourceX;
+    int currentSourceY;
+    int currentSourceLevel;
+    int currentTargetLevel;
     int totVisited;
     int** vertices;
-    bool** boolDfs;
+    int** level;
     bool** boolSpan;
-    list<SpanVertex>* adjSpan;
+    cords** parents;
     priority_queue<WeightedEdge, vector<WeightedEdge>, compareEdges> priorityEdges;
+    priority_queue<int> ladders;
     Graph(int N, int M);
     void createSpanningTree();
-    void dfs(int x, int y, int maxLad);
+    void bonusFind();
     void addEdges(int x, int y);
-    void clear();
 };
 
 

@@ -61,12 +61,13 @@ int main(int argc, char* argv[]) {
         getline(infile, line);
         vector<string> cords;
         split1(line, cords);
-        g.targetX = stoi(cords[2])-1;
-        g.targetY = stoi(cords[3])-1;
-        g.dfs(stoi(cords[0])-1, stoi(cords[1])-1, 0);
+        g.currentTargetX = stoi(cords[2])-1;
+        g.currentTargetY = stoi(cords[3])-1;
+        g.currentSourceX = stoi(cords[0])-1;
+        g.currentSourceY = stoi(cords[1])-1;
+        g.bonusFind();
         outputFile<<g.maxLadder<<endl;
-        //g.clear();
+        g.maxLadder = 0;
     }
-
     return 0;
 }
