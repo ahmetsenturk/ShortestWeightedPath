@@ -28,7 +28,7 @@ Graph::Graph(int N, int M) {
 }
 
 void Graph::createSpanningTree() {
-    parents[0] = -1;
+    parents[0] = 0;
     level[0] = 0;
     boolSpan[0] = true;
     addEdges(0);
@@ -44,7 +44,6 @@ void Graph::createSpanningTree() {
             totVisited++;
         }
     }
-    cout << "Check"<<endl;
 }
 
 void Graph::addEdges(int v) {
@@ -84,7 +83,4 @@ void Graph::bonusFind() {
         targetV = parents[targetV];
         targetLevel--;
     }
-    cout<<vertices[targetV]<<endl;
-    cout<<vertices[sourceV];
-
 }
