@@ -27,7 +27,6 @@ public:
     int sourceV;
     int sourceLevel;
     int targetLevel;
-    int totVisited;
     int* vertices;
     int* level;
     bool* boolSpan;

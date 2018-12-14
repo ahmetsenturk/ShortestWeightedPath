@@ -53,18 +53,18 @@ int main(int argc, char* argv[]) {
     outputFile.open (argv[2]);
     g.createSpanningTree();
 
-    vector<string> input2;
+    input.clear();
     getline(infile, line);
-    split1(line, input2);
-    int K = stoi(input2[0]);
+    split1(line, input);
+    int K = stoi(input[0]);
 
     for(int i=0; i<K; i++){
         string line;
         getline(infile, line);
         vector<string> cords;
         split1(line, cords);
-        g.targetV = (stoi(cords[2])-1)*M + stoi(cords[3]) - 1;
-        g.sourceV = (stoi(cords[0])-1)*M + stoi(cords[1]) - 1;
+        g.targetV = (stoi(cords[2])-1) * M + stoi(cords[3]) - 1;
+        g.sourceV = (stoi(cords[0])-1) * M + stoi(cords[1]) - 1;
         g.bonusFind();
         outputFile<<g.maxLadder<<endl;
         g.maxLadder = 0;
