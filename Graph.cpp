@@ -13,101 +13,72 @@ using namespace std;
 Graph::Graph(int N, int M) {
     this->N = N;
     this->M = M;
+    V = N*M;
     totVisited = 0;
     maxLadder = 0;
-    vertices = new int*[N];
-    level = new int*[N];
-    boolSpan = new bool*[N];
-    parents = new cords*[N];
-    for(int i = 0; i < N; ++i) {
-        vertices[i] = new int[M];
-        level[i] = new int[M];
-        boolSpan[i] = new bool[M];
-        parents[i] = new cords[M];
-    }
-
-    for (int i=0; i<N; i++) {
-        for (int j=0; j<M; j++) {
-            boolSpan[i][j] = false;
-        }
+    vertices = new int[N*M];
+    level = new int[N*M];
+    boolSpan = new bool[N*M];
+    parents = new int[N*M];
+    for (int i=0; i<N*M; i++) {
+        boolSpan[i] = false;
     }
 }
 
 void Graph::createSpanningTree() {
-    addEdges(0, 0);
-    parents[0][0] = make_pair(-1, -1);
-    level[0][0] = 0;
+    addEdges(0);
+    parents[0] = -1;
+    level[0] = 0;
     while(totVisited!=N*M){
         WeightedEdge currentEdge = priorityEdges.top();
-        if(!(boolSpan[currentEdge.x1][currentEdge.y1] && boolSpan[currentEdge.x2][currentEdge.y2])) {
-            level[currentEdge.x2][currentEdge.y2] = level[currentEdge.x1][currentEdge.y1] + 1;
-            boolSpan[currentEdge.x1][currentEdge.y1] = true;
-            boolSpan[currentEdge.x2][currentEdge.y2] = true;
-            parents[currentEdge.x2][currentEdge.y2] = make_pair(currentEdge.x1, currentEdge.y1);
+        if(!(boolSpan[currentEdge.v1] && boolSpan[currentEdge.v2])) {
+            level[currentEdge.v2] = level[currentEdge.v1] + 1;
+            boolSpan[currentEdge.v1] = true;
+            boolSpan[currentEdge.v2] = true;
+            parents[currentEdge.v2] = currentEdge.v1;
             priorityEdges.pop();
-            addEdges(currentEdge.x2, currentEdge.y2);
+            addEdges(currentEdge.v2);
         }else{
             priorityEdges.pop();
         }
     }
 }
 
-void Graph::addEdges(int x, int y) {
+void Graph::addEdges(int v) {
     totVisited++;
-    if(y+1<M && !boolSpan[x][y+1]) {
-        priorityEdges.push(WeightedEdge(x, y, x, y + 1, abs(vertices[x][y] - vertices[x][y + 1])));
+    if(v+M<V && !boolSpan[v+M]) {
+        priorityEdges.push(WeightedEdge(v, v+M , abs(vertices[v] - vertices[v+M])));
     }
-    if(x+1<N && !boolSpan[x+1][y]) {
-        priorityEdges.push(WeightedEdge(x, y, x + 1, y, abs(vertices[x][y] - vertices[x + 1][y])));
+    if(v-M>=0 && !boolSpan[v-M]) {
+        priorityEdges.push(WeightedEdge(v, v-M, abs(vertices[v] - vertices[v-M])));
     }
-    if(y-1>=0 && !boolSpan[x][y-1]) {
-        priorityEdges.push(WeightedEdge(x, y, x, y - 1, abs(vertices[x][y] - vertices[x][y - 1])));
+    if(v%M!=0 && !boolSpan[v-1]) {
+        priorityEdges.push(WeightedEdge(v, v-1, abs(vertices[v] - vertices[v-1])));
     }
-    if(x-1>=0 && !boolSpan[x-1][y]) {
-        priorityEdges.push(WeightedEdge(x, y, x - 1, y, abs(vertices[x][y] - vertices[x - 1][y])));
+    if((v+1)%M!=0 && !boolSpan[v+1]) {
+        priorityEdges.push(WeightedEdge(v, v+1, abs(vertices[v] - vertices[v+1])));
     }
 }
 
 void Graph::bonusFind() {
-    currentTargetLevel = level[currentTargetX][currentTargetY];
-    currentSourceLevel = level[currentSourceX][currentSourceY];
-    int temp = 0;
-    while(currentSourceLevel > currentTargetLevel){
-        ladders.push(abs(vertices[currentSourceX][currentSourceY]-
-        vertices[parents[currentSourceX][currentSourceY].first][parents[currentSourceX][currentSourceY].second]));
-        temp = currentSourceX;
-        currentSourceX = parents[currentSourceX][currentSourceY].first;
-        currentSourceY = parents[temp][currentSourceY].second;
-        currentSourceLevel--;
+    targetLevel = level[targetV];
+    sourceLevel = level[sourceV];
+    while(sourceLevel > targetLevel){
+        maxLadder = max(maxLadder, abs(vertices[sourceV]- vertices[parents[sourceV]]));
+        sourceV = parents[sourceV];
+        sourceLevel--;
     }
-    while(currentTargetLevel > currentSourceLevel){
-        ladders.push(abs(vertices[currentTargetX][currentTargetY]-
-        vertices[parents[currentTargetX][currentTargetY].first][parents[currentTargetX][currentTargetY].second]));
-        temp = currentTargetX;
-        currentTargetX = parents[currentTargetX][currentTargetY].first;
-        currentTargetY = parents[temp][currentTargetY].second;
-        currentTargetLevel--;
+    while(targetLevel > sourceLevel){
+        maxLadder = max(maxLadder, abs(vertices[targetV] - vertices[parents[targetV]]));
+        targetV = parents[targetV];
+        targetLevel--;
     }
-    int temp2 = 0;
-    while(currentSourceX != currentTargetX || currentSourceY != currentTargetY){
-        ladders.push(abs(vertices[currentSourceX][currentSourceY]-
-                         vertices[parents[currentSourceX][currentSourceY].first][parents[currentSourceX][currentSourceY].second]));
-        temp = currentSourceX;
-        currentSourceX = parents[currentSourceX][currentSourceY].first;
-        currentSourceY = parents[temp][currentSourceY].second;
-        currentSourceLevel--;
-        ladders.push(abs(vertices[currentTargetX][currentTargetY]-
-                         vertices[parents[currentTargetX][currentTargetY].first][parents[currentTargetX][currentTargetY].second]));
-        temp2 = currentTargetX;
-        currentTargetX = parents[currentTargetX][currentTargetY].first;
-        currentTargetY = parents[temp2][currentTargetY].second;
-        currentTargetLevel--;
+    while(sourceV != targetV){
+        maxLadder = max(maxLadder, abs(vertices[sourceV]- vertices[parents[sourceV]]));
+        sourceV = parents[sourceV];
+        sourceLevel--;
+        maxLadder = max(maxLadder, abs(vertices[sourceV]- vertices[parents[sourceV]]));
+        targetV = parents[targetV];
+        targetLevel--;
     }
-    ladders.push(abs(vertices[currentSourceX][currentSourceY]-
-                     vertices[parents[currentSourceX][currentSourceY].first][parents[currentSourceX][currentSourceY].second]));
-
-    ladders.push(abs(vertices[currentTargetX][currentTargetY]-
-                     vertices[parents[currentTargetX][currentTargetY].first][parents[currentTargetX][currentTargetY].second]));
-    maxLadder = ladders.top();
-    ladders = priority_queue <int>();
 }

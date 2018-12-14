@@ -16,30 +16,27 @@ struct compareEdges{
         return e1.weight > e2.weight;
     }
 };
-typedef pair<int, int> cords;
 
 class Graph {
     int N;
     int M;
+    int V;
 public:
     int maxLadder;
-    int currentTargetX;
-    int currentTargetY;
-    int currentSourceX;
-    int currentSourceY;
-    int currentSourceLevel;
-    int currentTargetLevel;
+    int targetV;
+    int sourceV;
+    int sourceLevel;
+    int targetLevel;
     int totVisited;
-    int** vertices;
-    int** level;
-    bool** boolSpan;
-    cords** parents;
+    int* vertices;
+    int* level;
+    bool* boolSpan;
+    int* parents;
     priority_queue<WeightedEdge, vector<WeightedEdge>, compareEdges> priorityEdges;
-    priority_queue<int> ladders;
     Graph(int N, int M);
     void createSpanningTree();
     void bonusFind();
-    void addEdges(int x, int y);
+    void addEdges(int v);
 };
 
 

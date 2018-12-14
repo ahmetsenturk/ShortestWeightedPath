@@ -8,16 +8,12 @@
 
 class WeightedEdge {
 public:
-    int x1;
-    int y1;
-    int x2;
-    int y2;
+    int v1;
+    int v2;
     int weight;
-    WeightedEdge(int x1, int y1, int x2, int y2, int weight){
-        this->x1 = x1;
-        this->y1 = y1;
-        this->x2 = x2;
-        this->y2 = y2;
+    WeightedEdge(int v1, int v2, int weight){
+        this->v1 = v1;
+        this->v2 = v2;
         this->weight = weight;
     }
 };

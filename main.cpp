@@ -38,12 +38,14 @@ int main(int argc, char* argv[]) {
     int N = stoi(input[0]);
     int M = stoi(input[1]);
     Graph g(N, M);
+    int count = 0;
     for (int i=0; i<N; i++) {
         getline(infile, line);
         vector<string> numbers;
         split1(line, numbers);
         for (int j=0; j<M; j++) {
-            g.vertices[i][j] = stoi(numbers[j]);
+            g.vertices[count] = stoi(numbers[j]);
+            count++;
         }
     }
     ios_base::sync_with_stdio(false);
@@ -61,10 +63,8 @@ int main(int argc, char* argv[]) {
         getline(infile, line);
         vector<string> cords;
         split1(line, cords);
-        g.currentTargetX = stoi(cords[2])-1;
-        g.currentTargetY = stoi(cords[3])-1;
-        g.currentSourceX = stoi(cords[0])-1;
-        g.currentSourceY = stoi(cords[1])-1;
+        g.targetV = (stoi(cords[2])-1)*M + stoi(cords[3]) - 1;
+        g.sourceV = (stoi(cords[0])-1)*M + stoi(cords[1]) - 1;
         g.bonusFind();
         outputFile<<g.maxLadder<<endl;
         g.maxLadder = 0;
